@@ -13,6 +13,11 @@ export default function ProtectedPage({ allowedRole, children }) {
       try {
         const data = await getCurrentUser();
 
+        if (!data || !data.user) {
+          router.replace("/login");
+          return;
+        }
+
         if (allowedRole) {
           const roles = typeof allowedRole === "string"
             ? allowedRole.split(",").map(r => r.trim())
@@ -21,14 +26,14 @@ export default function ProtectedPage({ allowedRole, children }) {
               : [allowedRole];
 
           if (!roles.includes(data.user.role)) {
-            router.replace(data.redirectTo);
+            router.replace(data.redirectTo || "/login");
             return;
           }
         }
+
+        setLoading(false);
       } catch (requestError) {
         router.replace("/login");
-      } finally {
-        setLoading(false);
       }
     }
 
