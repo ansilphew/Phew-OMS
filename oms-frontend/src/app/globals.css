@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-text: #0C0C0C;
+  --color-white: #FFFFFF;
+  --color-light: #F4F4F4;
+  --color-card-stroke: #D8D8D8;
+  --color-card-stroke-2: #969696;
+  --color-secondary-text: #64748B;
+  --color-search-text: #6B7280;
+  --color-menu-fill: #F1F5F9;
+  --color-primary-button: #4D0069;
+  --color-light-medium: #94A3B8;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+@layer utilities {
+  .container-padding-x {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  @media (min-width: 640px) {
+    .container-padding-x {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .container-padding-x {
+      padding-left: 25px;
+      padding-right: 25px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-padding-x {
+      padding-left: 35px;
+      padding-right: 35px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container-padding-x {
+      padding-left: 50px;
+      padding-right: 50px;
+    }
+  }
+}
+
+/* Hide native scrollbars while preserving scrolling */
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
