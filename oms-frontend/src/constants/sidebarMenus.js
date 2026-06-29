@@ -18,7 +18,7 @@ export const sidebarMenus = {
     { label: "Dashboard", href: "/ceo", icon: LayoutDashboard },
     { label: "Lead Management", href: "/ceo/lead-management", icon: Target },
     { label: "Proposal Management", href: "/ceo/proposal-management", icon: FileText },
-    { label: "Projects / Execution", href: "/ceo/projects", icon: FolderKanban },
+    { label: "Projects", href: "/ceo/projects", icon: FolderKanban },
     { label: "Accounts & Payments", href: "/ceo/accounts", icon: BadgeDollarSign },
     { label: "User Registration", href: "/register", icon: Users },
   ],
@@ -32,7 +32,7 @@ export const sidebarMenus = {
   ],
   projectManager: [
     { label: "Dashboard", href: "/project-manager", icon: LayoutDashboard },
-    { label: "Projects / Execution", href: "/ceo/projects", icon: FolderKanban },
+    { label: "Projects", href: "/ceo/projects", icon: FolderKanban },
     { label: "User Registration", href: "/register", icon: Users },
   ],
   client: [

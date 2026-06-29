@@ -150,6 +150,21 @@ export default function CEOAccountsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
  
+  const getCurrencySymbol = useCallback((projectName, clientName) => {
+    const matched = proposals.find(
+      (p) =>
+        p.clientName?.toLowerCase() === clientName?.toLowerCase() ||
+        p.clientName?.toLowerCase() === projectName?.toLowerCase()
+    );
+    const CURRENCY_SYMBOLS = {
+      INR: "₹",
+      USD: "$",
+      EUR: "€",
+      GBP: "£",
+    };
+    return matched ? (CURRENCY_SYMBOLS[matched.currency] || "₹") : "₹";
+  }, [proposals]);
+
   // ─── Fetch Payments ───
   const fetchPayments = useCallback(async () => {
     try {
@@ -338,7 +353,7 @@ export default function CEOAccountsPage() {
     });
     setShowForm(true);
   };
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.projectName) {
@@ -539,10 +554,10 @@ export default function CEOAccountsPage() {
                   <span className="font-semibold text-slate-500">Offered Amount</span>
                   <span className="text-slate-400 font-bold">:</span>
                   <span className="text-slate-800 font-medium">
-                    ₹{(viewingPayment.totalOfferedAmount || 0).toLocaleString("en-IN")}
+                    {getCurrencySymbol(viewingPayment.projectName, viewingPayment.clientName)}{(viewingPayment.totalOfferedAmount || 0).toLocaleString("en-IN")}
                     {hasGstDetails ? (
                       <span className="ml-2 text-xs font-semibold text-green-600">
-                        (GST Included: ₹{viewingPaymentGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })})
+                        (GST Included: {getCurrencySymbol(viewingPayment.projectName, viewingPayment.clientName)}{viewingPaymentGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })})
                       </span>
                     ) : (
                       <span className="ml-2 text-xs font-semibold text-slate-400">(Without GST)</span>
@@ -552,10 +567,10 @@ export default function CEOAccountsPage() {
                   <span className="font-semibold text-slate-500">Received (This Trans.)</span>
                   <span className="text-slate-400 font-bold">:</span>
                   <span className="text-slate-800 font-medium">
-                    ₹{(viewingPayment.amountReceived || 0).toLocaleString("en-IN")}
+                    {getCurrencySymbol(viewingPayment.projectName, viewingPayment.clientName)}{(viewingPayment.amountReceived || 0).toLocaleString("en-IN")}
                     {hasGstDetails && (
                       <span className="ml-2 text-xs font-semibold text-green-600">
-                        (GST Included: ₹{viewingPaymentReceivedGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })})
+                        (GST Included: {getCurrencySymbol(viewingPayment.projectName, viewingPayment.clientName)}{viewingPaymentReceivedGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })})
                       </span>
                     )}
                   </span>
@@ -563,17 +578,17 @@ export default function CEOAccountsPage() {
                   <span className="font-semibold text-slate-500">Total Received So Far</span>
                   <span className="text-slate-400 font-bold">:</span>
                   <span className="text-[#500072] font-semibold">
-                    ₹{((viewingPayment.totalOfferedAmount - viewingPayment.balanceAmount) || 0).toLocaleString("en-IN")}
+                    {getCurrencySymbol(viewingPayment.projectName, viewingPayment.clientName)}{((viewingPayment.totalOfferedAmount - viewingPayment.balanceAmount) || 0).toLocaleString("en-IN")}
                     {hasGstDetails && (
                       <span className="ml-2 text-xs font-semibold text-green-600">
-                        (GST Included: ₹{viewingPaymentTotalReceivedGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })})
+                        (GST Included: {getCurrencySymbol(viewingPayment.projectName, viewingPayment.clientName)}{viewingPaymentTotalReceivedGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })})
                       </span>
                     )}
                   </span>
   
                   <span className="font-semibold text-slate-500">Balance</span>
                   <span className="text-slate-400 font-bold">:</span>
-                  <span className="text-[#ef4444] font-semibold">₹{(viewingPayment.balanceAmount || 0).toLocaleString("en-IN")}</span>
+                  <span className="text-[#ef4444] font-semibold">{getCurrencySymbol(viewingPayment.projectName, viewingPayment.clientName)}{(viewingPayment.balanceAmount || 0).toLocaleString("en-IN")}</span>
   
                   <span className="font-semibold text-slate-500">Start date</span>
                   <span className="text-slate-400 font-bold">:</span>
@@ -773,11 +788,11 @@ export default function CEOAccountsPage() {
                             {/* OFFERED AMOUNT */}
                             <td className="px-2 py-4">
                               <span className="font-semibold text-slate-700 block">
-                                ₹{formattedOffered}
+                                {getCurrencySymbol(pay.projectName, pay.clientName)}{formattedOffered}
                               </span>
                               {hasGst ? (
-                                <span className="text-[10px] text-green-600 font-semibold block mt-0.5" title={`GST Amount: ₹${offeredGst.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`}>
-                                  GST Included: ₹{offeredGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+                                <span className="text-[10px] text-green-600 font-semibold block mt-0.5" title={`GST Amount: ${getCurrencySymbol(pay.projectName, pay.clientName)}${offeredGst.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`}>
+                                  GST Included: {getCurrencySymbol(pay.projectName, pay.clientName)}{offeredGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
                                 </span>
                               ) : (
                                 <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">
@@ -789,11 +804,11 @@ export default function CEOAccountsPage() {
                             {/* RECEIVED */}
                             <td className="px-2 py-4">
                               <span className="font-semibold text-slate-700 block" title="Amount received in this transaction">
-                                ₹{formattedReceived}
+                                {getCurrencySymbol(pay.projectName, pay.clientName)}{formattedReceived}
                               </span>
                               {hasGst ? (
-                                <span className="text-[10px] text-green-600 font-semibold block mt-0.5" title={`GST Amount: ₹${receivedGst.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`}>
-                                  GST Included: ₹{receivedGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+                                <span className="text-[10px] text-green-600 font-semibold block mt-0.5" title={`GST Amount: ${getCurrencySymbol(pay.projectName, pay.clientName)}${receivedGst.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`}>
+                                  GST Included: {getCurrencySymbol(pay.projectName, pay.clientName)}{receivedGst.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
                                 </span>
                               ) : (
                                 <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">
@@ -801,14 +816,14 @@ export default function CEOAccountsPage() {
                                 </span>
                               )}
                               <span className="text-[9.5px] text-[#500072] font-bold block mt-1">
-                                Total Paid: ₹{(pay.totalOfferedAmount - pay.balanceAmount).toLocaleString("en-IN")}
+                                Total Paid: {getCurrencySymbol(pay.projectName, pay.clientName)}{(pay.totalOfferedAmount - pay.balanceAmount).toLocaleString("en-IN")}
                               </span>
                             </td>
                             
                             {/* BALANCE */}
                             <td className="px-2 py-4">
                               <span className={`font-semibold block ${pay.balanceAmount > 0 ? "text-[#ef4444]" : "text-slate-500"}`}>
-                                ₹{formattedBalance}
+                                {getCurrencySymbol(pay.projectName, pay.clientName)}{formattedBalance}
                               </span>
                               <span className="text-[10px] text-slate-400 block mt-0.5">
                                 {balanceSubtext}
@@ -982,7 +997,7 @@ export default function CEOAccountsPage() {
                     </div>
                   </div>
                 </div>
- 
+
                 {/* Row 2: Financial Box (Grey Background Panel) */}
                 <div className="bg-[#f8fafc] rounded-2xl p-6 border border-[#edf2f7] mt-6">
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
@@ -990,7 +1005,7 @@ export default function CEOAccountsPage() {
                     <div>
                       <label className="block text-[13px] font-semibold text-[#4a5568] mb-1.5 min-h-[38px] flex items-end">Total Offered Amount</label>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#718096] font-medium">₹</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#718096] font-medium">{getCurrencySymbol(form.projectName, form.clientName)}</span>
                         <input
                           type="text"
                           name="totalOfferedAmount"
@@ -1006,11 +1021,11 @@ export default function CEOAccountsPage() {
                         />
                       </div>
                     </div>
- 
+
                     <div>
                       <label className="block text-[13px] font-semibold text-[#4a5568] mb-1.5 min-h-[38px] flex items-end">Previously Received</label>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#718096] font-medium">₹</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#718096] font-medium">{getCurrencySymbol(form.projectName, form.clientName)}</span>
                         <input
                           type="text"
                           name="amountReceived"
@@ -1025,7 +1040,7 @@ export default function CEOAccountsPage() {
                     <div>
                       <label className="block text-[13px] font-semibold text-[#4a5568] mb-1.5 min-h-[38px] flex items-end">New Payment Amount</label>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#718096] font-medium">₹</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#718096] font-medium">{getCurrencySymbol(form.projectName, form.clientName)}</span>
                         <input
                           type="text"
                           name="newPaymentAmount"
@@ -1036,11 +1051,11 @@ export default function CEOAccountsPage() {
                         />
                       </div>
                     </div>
- 
+
                     <div>
                       <label className="block text-[13px] font-semibold text-[#4a5568] mb-1.5 min-h-[38px] flex items-end">Balance Amount</label>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#718096] font-medium">₹</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#718096] font-medium">{getCurrencySymbol(form.projectName, form.clientName)}</span>
                         <input
                           type="text"
                           name="balanceAmount"

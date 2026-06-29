@@ -20,8 +20,8 @@ export default function SettingsPage() {
 
   return (
     <div className="rounded-xl border border-[#eef0f3] bg-white p-8">
-      <h2 className="text-xl font-bold text-[#1f1f1f] mb-2">Account Settings</h2>
-      <p className="text-sm text-[#9a9a9a]">Manage your credentials, configuration, and notification preferences.</p>
+      <h2 className="app-heading-medium mb-2">Account Settings</h2>
+      <p className="app-body-muted">Manage your credentials, configuration, and notification preferences.</p>
       
       <div className="mt-8 grid gap-6 max-w-xl">
         <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">

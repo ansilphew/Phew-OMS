@@ -234,11 +234,11 @@ export default function DashboardTopbar() {
     <header className="fixed left-60 right-0 top-0 z-20 border-b border-card-stroke bg-white shadow-sm">
       <div className="flex min-h-[88px] items-center justify-between px-7 py-3">
         <div>
-          <h1 className="text-[22px] font-semibold text-primary-text">
+          <h1 className="app-heading-title">
             {dynamicTitle || currentMeta.title}
           </h1>
 
-          <p className="text-[13px] text-secondary-text">
+          <p className="app-body-muted">
             {dynamicDesc || currentMeta.description}
           </p>
         </div>

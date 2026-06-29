@@ -1455,77 +1455,7 @@ function CEOProjectsPageInner() {
                     )}
                   </div>
 
-                  {/* Team Dropdown */}
-                  {selectedStatusView !== "completed" && (
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setTeamDropdownOpen(!teamDropdownOpen);
-                          setServiceDropdownOpen(false);
-                          setPriorityDropdownOpen(false);
-                          setSortDropdownOpen(false);
-                        }}
-                        className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 transition cursor-pointer text-xs font-bold text-slate-600 outline-none"
-                      >
-                        <Users className="h-3.5 w-3.5 text-slate-400" />
-                        <span>Team{teamFilter !== "all" ? `: ${teamFilter}` : ""}</span>
-                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-                      </button>
-                      {teamDropdownOpen && (
-                        <div className="absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1.5 z-10">
-                          {["all", "Design Team", "Development Team", "Marketing Team"].map((option) => (
-                            <button
-                              key={option}
-                              type="button"
-                              onClick={() => {
-                                setTeamFilter(option);
-                                setTeamDropdownOpen(false);
-                              }}
-                              className={`w-full text-left px-4 py-2 text-xs font-semibold hover:bg-slate-50 transition ${teamFilter === option ? "text-[#500072] bg-slate-50 font-bold" : "text-slate-700"}`}
-                            >
-                              {option === "all" ? "All Teams" : option}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
 
-                  {/* Priority Dropdown */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPriorityDropdownOpen(!priorityDropdownOpen);
-                        setServiceDropdownOpen(false);
-                        setTeamDropdownOpen(false);
-                        setSortDropdownOpen(false);
-                      }}
-                      className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 transition cursor-pointer text-xs font-bold text-slate-600 outline-none"
-                    >
-                      <Flag className="h-3.5 w-3.5 text-slate-400" />
-                      <span>Priority{priorityFilter !== "all" ? `: ${priorityFilter}` : ""}</span>
-                      <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-                    </button>
-                    {priorityDropdownOpen && (
-                      <div className="absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1.5 z-10">
-                        {["all", "High", "Medium", "Low"].map((option) => (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() => {
-                              setPriorityFilter(option);
-                              setPriorityDropdownOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 text-xs font-semibold hover:bg-slate-50 transition capitalize ${priorityFilter === option ? "text-[#500072] bg-slate-50 font-bold" : "text-slate-700"}`}
-                          >
-                            {option === "all" ? "All Priorities" : option}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
                 </div>
 
                 {/* Sort By Dropdown */}

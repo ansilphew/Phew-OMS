@@ -1,8 +1,7 @@
 "use client";
  
 import React from "react";
-import { useRouter } from "next/navigation";
-import { Globe, FileCheck, MessageSquare, ArrowRight } from "lucide-react";
+import { Globe, FileCheck, MessageSquare } from "lucide-react";
  
 const typeStyles = {
   project: {
@@ -26,8 +25,6 @@ const typeStyles = {
 };
  
 export default function RecentWinningList({ items }) {
-  const router = useRouter();
-
   // Show up to 4 items in the dashboard preview
   const displayWins =
     items && items.length > 0
@@ -45,17 +42,11 @@ export default function RecentWinningList({ items }) {
           };
         })
       : [];
-
+ 
   return (
     <div className="w-full">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-slate-800">Recent Winning</h2>
-        <button
-          onClick={() => router.push("/ceo/recent-winnings")}
-          className="flex items-center gap-1 text-[13px] font-semibold text-primary-button hover:text-[#3d0057] transition-colors cursor-pointer"
-        >
-          View all <ArrowRight className="h-4 w-4" />
-        </button>
+        <h2 className="app-heading-medium">Recent Winning</h2>
       </div>
  
       <div className="space-y-4">
@@ -78,8 +69,8 @@ export default function RecentWinningList({ items }) {
                     <Icon className={`h-5 w-5 ${win.iconColor}`} />
                   </div>
                   <div>
-                    <h3 className="text-[14px] font-semibold text-slate-800">{win.title}</h3>
-                    <p className="mt-0.5 text-[12px] text-slate-500">{win.subtitle}</p>
+                    <h3 className="app-heading-small">{win.title}</h3>
+                    <p className="mt-0.5 app-body-muted">{win.subtitle}</p>
                   </div>
                 </div>
                 <div className="text-right shrink-0">

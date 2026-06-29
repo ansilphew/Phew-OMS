@@ -16,6 +16,7 @@ export default function LeadDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [userRole, setUserRole] = useState("");
+  const [currencySymbol, setCurrencySymbol] = useState("$");
 
   useEffect(() => {
     async function loadData() {
@@ -41,6 +42,28 @@ export default function LeadDetailPage({ params }) {
           setPayments(matched);
         } catch (payErr) {
           console.warn("Failed to fetch payments", payErr);
+        }
+
+        // 4. Fetch Proposals to resolve currency symbol
+        try {
+          const proposalsRes = await axiosInstance.get("/proposals");
+          const allProposals = proposalsRes.data.proposals || [];
+          const matchedProposal = allProposals.find(
+            (p) =>
+              p.clientName?.toLowerCase() === leadData.organization?.toLowerCase() ||
+              p.clientName?.toLowerCase() === leadData.projectName?.toLowerCase()
+          );
+          if (matchedProposal) {
+            const CURRENCY_SYMBOLS = {
+              INR: "₹",
+              USD: "$",
+              EUR: "€",
+              GBP: "£",
+            };
+            setCurrencySymbol(CURRENCY_SYMBOLS[matchedProposal.currency] || "$");
+          }
+        } catch (propErr) {
+          console.warn("Failed to fetch proposals", propErr);
         }
 
       } catch (err) {
@@ -202,19 +225,19 @@ export default function LeadDetailPage({ params }) {
                 <div className="p-4.5 bg-slate-50 border border-slate-100 rounded-2xl">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Total Contract offered</span>
                   <span className="text-2xl font-bold text-slate-800 mt-1 block">
-                    ${totalOffered.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {currencySymbol}{totalOffered.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="p-4.5 bg-green-50/50 border border-green-100/50 rounded-2xl">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-green-600 block">Total Amount Received</span>
                   <span className="text-2xl font-bold text-green-700 mt-1 block">
-                    ${totalReceived.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {currencySymbol}{totalReceived.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="p-4.5 bg-orange-50/50 border border-orange-100/50 rounded-2xl">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600 block">Total Outstanding Balance</span>
                   <span className="text-2xl font-bold text-orange-700 mt-1 block">
-                    ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {currencySymbol}{balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
@@ -242,7 +265,7 @@ export default function LeadDetailPage({ params }) {
                             <td className="px-4 py-3">{p.date ? new Date(p.date).toLocaleDateString() : "—"}</td>
                             <td className="px-4 py-3 font-mono">{p.referenceNo}</td>
                             <td className="px-4 py-3">{p.serviceType}</td>
-                            <td className="px-4 py-3 text-slate-800 font-semibold">${(p.amountReceived || 0).toLocaleString()}</td>
+                            <td className="px-4 py-3 text-slate-800 font-semibold">{currencySymbol}{(p.amountReceived || 0).toLocaleString()}</td>
                             <td className="px-4 py-3">
                               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                                 p.status === "Completed" ? "bg-green-50 text-green-700" :

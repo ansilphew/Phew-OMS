@@ -85,7 +85,7 @@ export default function CeoPage() {
             bgColor="bg-[#f3f0ff]"
             iconBgColor="bg-[#e8e2ff]"
             iconColor="text-[#65008c]"
-            onClick={() => router.push("/ceo/lead-management")}
+            onClick={() => router.push("/ceo/closed-deals")}
           />
  
           {/* Card 2: Active Projects → Projects page */}

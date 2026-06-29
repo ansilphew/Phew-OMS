@@ -5,7 +5,7 @@ import { Edit2 } from "lucide-react";
 export default function SectionHeader({ title, onEdit, isEditing, onSave, onCancel }) {
   return (
     <div className="mb-4 flex items-center justify-between">
-      <h3 className="text-base font-bold text-[#1f1f1f]">
+      <h3 className="app-heading-small">
         {title}
       </h3>
 

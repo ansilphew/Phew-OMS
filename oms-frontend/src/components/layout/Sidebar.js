@@ -24,7 +24,7 @@ function SidebarMenuItem({ item, pathname }) {
       }`}
     >
       <Icon className="h-4 w-4 shrink-0" strokeWidth={1.9} />
-      <span>{item.label}</span>
+      <span className="whitespace-nowrap">{item.label}</span>
     </Link>
   );
 }
@@ -70,10 +70,19 @@ export default function Sidebar() {
     currentMenu = sidebarMenus[roleKey] || [];
   }
 
+  const roleKeyForRedirect = 
+    userRole === "Project Manager" ? "projectManager" : 
+    userRole === "Sales Head" ? "salesHead" : 
+    userRole?.toLowerCase();
+  const userMenuForRedirect = sidebarMenus[roleKeyForRedirect] || [];
+  const targetHref = userMenuForRedirect[0]?.href || "/";
+
   return (
     <aside className="fixed inset-y-0 left-0 flex h-screen w-60 flex-col border-r border-card-stroke bg-white">
-      <div className="px-6 min-h-[88px] border-b border-card-stroke flex items-center">
-        <span className="text-5xl font-bold tracking-tight text-primary-text">Phew</span>
+      <div className="px-6 min-h-[89px] border-b border-card-stroke flex items-center">
+        <Link href={targetHref} className="cursor-pointer w-full flex items-center justify-start">
+          <img src="/images/phew-new-logo.svg" alt="Phew Logo" className="cursor-pointer max-w-[140px]  w-full h-auto" />
+        </Link>
       </div> 
 
       <div className="flex flex-1 flex-col justify-between overflow-y-auto px-4 pb-5">

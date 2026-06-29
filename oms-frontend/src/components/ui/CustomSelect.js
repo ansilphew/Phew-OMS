@@ -73,25 +73,25 @@ export default function CustomSelect({
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen((open) => !open)}
-        className={`flex w-full cursor-pointer items-center justify-between border-0 border-b border-black/40 bg-transparent pb-5 text-left text-[16px] outline-none transition ${
-          selectedOption ? "text-slate-900" : "text-[#8d8d8d]"
-        } ${isOpen ? "border-[#7a1e9f]" : ""}`}
+        className={`flex w-full cursor-pointer items-center justify-between rounded-xl border border-transparent bg-menu-fill px-4 py-3.5 text-left text-sm outline-none transition-all ${
+          selectedOption ? "text-primary-text font-medium" : "text-[#8d8d8d]"
+        } ${isOpen ? "border-card-stroke bg-white" : ""}`}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
         <span>{selectedOption ? selectedOption.label : placeholder}</span>
         <svg
           className={`shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
-          width="18"
-          height="18"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
             d="M6 9L12 15L18 9"
-            stroke="#8d8d8d"
-            strokeWidth="1.8"
+            stroke="#64748B"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
