@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ProtectedPage from "@/components/auth/ProtectedPage";
 import SearchableDropdown from "@/components/ui/SearchableDropdown";
+import axiosInstance from "@/api/axiosInstance";
 import {
   ChevronDown,
   Loader2,
@@ -423,48 +424,37 @@ function CEOProjectsPageInner() {
       }
     }
   }, [statusFilter]);
- 
-  const API = process.env.NEXT_PUBLIC_API_BASE_URL;
- 
+
   // ─── Fetch Projects ───
   const fetchProjects = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/projects`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setProjects(data.projects || []);
-      }
+      const res = await axiosInstance.get("/projects");
+      setProjects(res.data.projects || []);
     } catch {
       setProjects([]);
     }
-  }, [API]);
+  }, []);
 
   // ─── Fetch Leads ───
   const fetchLeads = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/leads`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setLeads(data.leads || []);
-      }
+      const res = await axiosInstance.get("/leads");
+      setLeads(res.data.leads || []);
     } catch (err) {
       console.error("Error fetching leads for projects page:", err);
     }
-  }, [API]);
+  }, []);
 
   // ─── Fetch Proposals ───
   const fetchProposals = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/proposals`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setProposals(data.proposals || []);
-      }
+      const res = await axiosInstance.get("/proposals");
+      setProposals(res.data.proposals || []);
     } catch (err) {
       console.error("Error fetching proposals for projects page:", err);
     }
-  }, [API]);
- 
+  }, []);
+
   useEffect(() => {
     fetchProjects();
     fetchLeads();
@@ -532,16 +522,7 @@ function CEOProjectsPageInner() {
         prev.map((p) => (p._id === projectId ? { ...p, currentStatus: newStatus } : p))
       );
 
-      const res = await fetch(`${API}/projects/${projectId}`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentStatus: newStatus }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to update status");
-      }
+      await axiosInstance.put(`/projects/${projectId}`, { currentStatus: newStatus });
 
       setSuccessMsg("Project status updated successfully!");
       setTimeout(() => setSuccessMsg(""), 3000);
@@ -607,23 +588,13 @@ function CEOProjectsPageInner() {
         setSubmitting(true);
         setError("");
 
-        const res = await fetch(`${API}/projects/${selectedProj._id}`, {
-          method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            currentStatus: "Completed",
-            serviceCategory: form.serviceCategory,
-            displayTitle: form.displayTitle,
-            completionDate: form.completionDate,
-            heroImage: form.heroImage,
-          }),
+        await axiosInstance.put(`/projects/${selectedProj._id}`, {
+          currentStatus: "Completed",
+          serviceCategory: form.serviceCategory,
+          displayTitle: form.displayTitle,
+          completionDate: form.completionDate,
+          heroImage: form.heroImage,
         });
-
-        if (!res.ok) {
-          const d = await res.json().catch(() => ({}));
-          throw new Error(d.message || "Failed to save completed work.");
-        }
 
         setSuccessMsg(editingId ? "Completed work updated successfully!" : "Completed work recorded successfully!");
         setForm(EMPTY_FORM);
@@ -648,20 +619,14 @@ function CEOProjectsPageInner() {
       setSubmitting(true);
       setError("");
       
-      const method = editingId ? "PUT" : "POST";
-      const url = editingId ? `${API}/projects/${editingId}` : `${API}/projects`;
+      const method = editingId ? "put" : "post";
+      const url = editingId ? `/projects/${editingId}` : "/projects";
       
-      const res = await fetch(url, {
+      await axiosInstance({
+        url,
         method,
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        data: form,
       });
-      
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.message || "Failed to save project.");
-      }
  
       setSuccessMsg(editingId ? "Project updated successfully!" : "Project recorded successfully!");
       setForm(EMPTY_FORM);
@@ -703,7 +668,7 @@ function CEOProjectsPageInner() {
  
   const handleDelete = async (id) => {
     try {
-      await fetch(`${API}/projects/${id}`, { method: "DELETE", credentials: "include" });
+      await axiosInstance.delete(`/projects/${id}`);
       setProjects((prev) => prev.filter((p) => p._id !== id));
       setDeletingId(null);
       setSuccessMsg("Project deleted successfully!");

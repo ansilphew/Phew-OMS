@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import ProtectedPage from "@/components/auth/ProtectedPage";
 import SearchableDropdown from "@/components/ui/SearchableDropdown";
+import axiosInstance from "@/api/axiosInstance";
 import {
   ChevronDown,
   Loader2,
@@ -63,7 +64,6 @@ export default function BDEProposalManagementPage() {
   const [editingId, setEditingId] = useState(null);
 
   const router = useRouter();
-  const API = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const handleEditClick = (prop) => {
     setEditingId(prop._id);
@@ -80,30 +80,22 @@ export default function BDEProposalManagementPage() {
   // ─── Fetch Proposals from Backend ───
   const fetchProposals = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/proposals`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setProposals(data.proposals || []);
-      } else {
-        setProposals([]);
-      }
+      const res = await axiosInstance.get("/proposals");
+      setProposals(res.data.proposals || []);
     } catch {
       setProposals([]);
     }
-  }, [API]);
+  }, []);
 
   // ─── Fetch Leads from Backend ───
   const fetchLeads = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/leads`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setLeads(data.leads || []);
-      }
+      const res = await axiosInstance.get("/leads");
+      setLeads(res.data.leads || []);
     } catch (err) {
       console.error("Error fetching leads for proposals:", err);
     }
-  }, [API]);
+  }, []);
 
   useEffect(() => {
     fetchProposals();
@@ -164,28 +156,21 @@ export default function BDEProposalManagementPage() {
         return;
       }
 
-      const url = editingId ? `${API}/proposals/${editingId}` : `${API}/proposals`;
-      const method = editingId ? "PUT" : "POST";
+      const url = editingId ? `/proposals/${editingId}` : "/proposals";
+      const method = editingId ? "put" : "post";
 
-      const res = await fetch(url, {
-        method: method,
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      await axiosInstance({
+        url,
+        method,
+        data: {
           clientName: form.clientName,
           category: form.category,
           contactNumber: form.contactNumber,
           currency: form.currency,
           date: form.date,
           amount: parseFloat(form.amount) || 0,
-        }),
+        },
       });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(data.message || `Failed to ${editingId ? "update" : "submit"} proposal.`);
-      }
 
       setSuccessMsg(editingId ? "Proposal updated successfully!" : "Proposal saved successfully!");
       const today = new Date().toISOString().split("T")[0];
@@ -197,7 +182,7 @@ export default function BDEProposalManagementPage() {
       fetchProposals();
       setTimeout(() => setSuccessMsg(""), 4000);
     } catch (err) {
-      setError(err.message || "Something went wrong while saving.");
+      setError(err.response?.data?.message || err.message || "Something went wrong while saving.");
     } finally {
       setSubmitting(false);
     }
@@ -215,17 +200,10 @@ export default function BDEProposalManagementPage() {
     }
 
     try {
-      const res = await fetch(`${API}/proposals/${id}`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (res.ok) {
-        setSuccessMsg("Proposal status updated successfully!");
-        fetchProposals();
-        setTimeout(() => setSuccessMsg(""), 3000);
-      }
+      await axiosInstance.put(`/proposals/${id}`, { status: newStatus });
+      setSuccessMsg("Proposal status updated successfully!");
+      fetchProposals();
+      setTimeout(() => setSuccessMsg(""), 3000);
     } catch {
       setError("Failed to update status.");
     }
@@ -242,16 +220,11 @@ export default function BDEProposalManagementPage() {
     }
 
     try {
-      const res = await fetch(`${API}/proposals/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        setSuccessMsg("Proposal deleted successfully!");
-        fetchProposals();
-        setDeletingId(null);
-        setTimeout(() => setSuccessMsg(""), 3000);
-      }
+      await axiosInstance.delete(`/proposals/${id}`);
+      setSuccessMsg("Proposal deleted successfully!");
+      fetchProposals();
+      setDeletingId(null);
+      setTimeout(() => setSuccessMsg(""), 3000);
     } catch {
       setError("Failed to delete proposal.");
     }

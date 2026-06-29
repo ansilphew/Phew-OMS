@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import ProtectedPage from "@/components/auth/ProtectedPage";
 import { getCurrentUser } from "@/lib/api";
 import { CheckCircle, Rocket, Wallet, AlertTriangle, Trophy, Loader2 } from "lucide-react";
- 
+import axiosInstance from "@/api/axiosInstance";
+
 import MetricCard from "@/components/dashboard/ceo/MetricCard";
 import RecentWinningList from "@/components/dashboard/ceo/RecentWinningList";
 import RevenueCard from "@/components/dashboard/ceo/RevenueCard";
@@ -15,8 +16,6 @@ export default function CeoPage() {
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
- 
-  const API = process.env.NEXT_PUBLIC_API_BASE_URL;
  
   useEffect(() => {
     let isMounted = true;
@@ -35,12 +34,9 @@ export default function CeoPage() {
         //   - Pending Payments→ Payment.balanceAmount
         //   - Delayed Projects→ Project.currentStatus="Delayed"
         //   - Recent Winning  → Lead "Close" + Proposal "Approved" in last 7 days
-        const statsRes = await fetch(`${API}/dashboard/ceo-stats`, { credentials: "include" });
-        if (statsRes.ok) {
-          const statsData = await statsRes.json();
-          if (statsData.success && isMounted) {
-            setStats(statsData.stats);
-          }
+        const statsRes = await axiosInstance.get("/dashboard/ceo-stats");
+        if (statsRes.data && statsRes.data.success && isMounted) {
+          setStats(statsRes.data.stats);
         }
       } catch (err) {
         console.error("Error loading CEO dashboard data:", err);
@@ -52,7 +48,7 @@ export default function CeoPage() {
     return () => {
       isMounted = false;
     };
-  }, [API]);
+  }, []);
 
   const formatCurrency = (val) => {
     if (typeof val !== "number" || isNaN(val)) return "₹0";

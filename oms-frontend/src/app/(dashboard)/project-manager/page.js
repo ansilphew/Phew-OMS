@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import ProtectedPage from "@/components/auth/ProtectedPage";
 import { getCurrentUser } from "@/lib/api";
+import axiosInstance from "@/api/axiosInstance";
 import { 
   Plus, 
   Pencil, 
@@ -134,8 +135,6 @@ export default function ProjectManagerPage() {
 
   const [successMessage, setSuccessMessage] = useState("");
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-
   // Initialize and load
   useEffect(() => {
     async function loadInitialData() {
@@ -144,11 +143,9 @@ export default function ProjectManagerPage() {
         setUser(userData.user);
 
         // Fetch DB Projects
-        const res = await fetch(`${API_BASE}/projects`, { credentials: "include" });
-        if (res.ok) {
-          const data = await res.json();
-          const list = data.projects || [];
-          setDbProjects(list);
+        const res = await axiosInstance.get("/projects");
+        const list = res.data.projects || [];
+        setDbProjects(list);
 
           // Build state mappings for projects
           const initialData = { "abc-company": defaultAbcCompany };
@@ -231,14 +228,13 @@ export default function ProjectManagerPage() {
           } else {
             setProjectsData(initialData);
           }
-        }
       } catch (err) {
         console.error("Error loading dashboard data:", err);
       }
     }
 
     loadInitialData();
-  }, [API_BASE]);
+  }, []);
 
   // Save updates helper
   const saveProjectsState = useCallback((updatedData) => {
@@ -340,17 +336,9 @@ export default function ProjectManagerPage() {
     // Persist to backend if a real database project is selected
     if (selectedProjectId !== "abc-company") {
       try {
-        const res = await fetch(`${API_BASE}/projects/${selectedProjectId}`, {
-          method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            currentStatus: editStatus
-          })
+        await axiosInstance.put(`/projects/${selectedProjectId}`, {
+          currentStatus: editStatus
         });
-        if (!res.ok) {
-          throw new Error("Failed to update status on server");
-        }
       } catch (err) {
         console.error("Error saving project details to backend:", err);
       }

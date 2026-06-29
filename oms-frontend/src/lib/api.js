@@ -1,22 +1,20 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+import axiosInstance from "@/api/axiosInstance";
 
 async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-  });
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.message || "Something went wrong");
+  const { method = "GET", body, headers, ...rest } = options;
+  try {
+    const response = await axiosInstance({
+      url: path,
+      method,
+      data: body ? (typeof body === "string" ? JSON.parse(body) : body) : undefined,
+      headers: headers,
+      ...rest,
+    });
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.message || error.message || "Something went wrong";
+    throw new Error(message);
   }
-
-  return data;
 }
 
 let cachedUserPromise = null;

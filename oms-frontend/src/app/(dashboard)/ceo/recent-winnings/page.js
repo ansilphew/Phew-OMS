@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ProtectedPage from "@/components/auth/ProtectedPage";
+import axiosInstance from "@/api/axiosInstance";
 import {
   Globe,
   FileCheck,
@@ -56,21 +57,14 @@ export default function RecentWinningsAllPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [search, setSearch] = useState("");
 
-  const API = process.env.NEXT_PUBLIC_API_BASE_URL;
-
   useEffect(() => {
     let isMounted = true;
     async function fetchWinnings() {
       try {
         setLoading(true);
-        const res = await fetch(`${API}/dashboard/recent-winnings`, {
-          credentials: "include",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && isMounted) {
-            setWinnings(data.winnings || []);
-          }
+        const res = await axiosInstance.get("/dashboard/recent-winnings");
+        if (res.data && res.data.success && isMounted) {
+          setWinnings(res.data.winnings || []);
         }
       } catch (err) {
         console.error("Failed to load recent winnings:", err);
@@ -80,7 +74,7 @@ export default function RecentWinningsAllPage() {
     }
     fetchWinnings();
     return () => { isMounted = false; };
-  }, [API]);
+  }, []);
 
   // ─── Filter logic ───────────────────────────────────────────────────────────
   const filtered = winnings.filter((w) => {

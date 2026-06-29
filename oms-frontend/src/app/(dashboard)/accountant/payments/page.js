@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import ProtectedPage from "@/components/auth/ProtectedPage";
 import SearchableDropdown from "@/components/ui/SearchableDropdown";
+import axiosInstance from "@/api/axiosInstance";
 import {
   ChevronDown,
   Loader2,
@@ -149,67 +150,45 @@ export default function AccountantPaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
  
-  const API = process.env.NEXT_PUBLIC_API_BASE_URL;
- 
   // ─── Fetch Payments ───
   const fetchPayments = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/payments`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setPayments(data.payments || []);
-      } else {
-        setPayments([]);
-      }
+      const res = await axiosInstance.get("/payments");
+      setPayments(res.data.payments || []);
     } catch {
       setPayments([]);
     }
-  }, [API]);
+  }, []);
  
   // ─── Fetch Projects ───
   const fetchProjects = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/projects`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setProjects(data.projects || []);
-      } else {
-        setProjects([]);
-      }
+      const res = await axiosInstance.get("/projects");
+      setProjects(res.data.projects || []);
     } catch {
       setProjects([]);
     }
-  }, [API]);
+  }, []);
 
   // ─── Fetch Leads ───
   const fetchLeads = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/leads`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setLeads(data.leads || []);
-      } else {
-        setLeads([]);
-      }
+      const res = await axiosInstance.get("/leads");
+      setLeads(res.data.leads || []);
     } catch {
       setLeads([]);
     }
-  }, [API]);
+  }, []);
 
   // ─── Fetch Proposals ───
   const fetchProposals = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/proposals`, { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        setProposals(data.proposals || []);
-      } else {
-        setProposals([]);
-      }
+      const res = await axiosInstance.get("/proposals");
+      setProposals(res.data.proposals || []);
     } catch {
       setProposals([]);
     }
-  }, [API]);
+  }, []);
  
   useEffect(() => {
     fetchPayments();
@@ -391,14 +370,13 @@ export default function AccountantPaymentsPage() {
       setSubmitting(true);
       setError("");
  
-      const method = editingId ? "PUT" : "POST";
-      const url = editingId ? `${API}/payments/${editingId}` : `${API}/payments`;
+      const method = editingId ? "put" : "post";
+      const url = editingId ? `/payments/${editingId}` : "/payments";
  
-      const res = await fetch(url, {
+      const res = await axiosInstance({
+        url,
         method,
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        data: {
           project: form.project || null,
           projectName: form.projectName,
           clientName: form.clientName,
@@ -409,14 +387,8 @@ export default function AccountantPaymentsPage() {
           status: form.status,
           date: form.date,
           referenceNo: form.referenceNo,
-        }),
+        },
       });
- 
-      const data = await res.json().catch(() => ({}));
- 
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to save payment transaction.");
-      }
  
       setSuccessMsg(editingId ? "Payment updated successfully!" : "Payment recorded successfully!");
       fetchPayments();
@@ -424,7 +396,7 @@ export default function AccountantPaymentsPage() {
       handleClear();
       setTimeout(() => setSuccessMsg(""), 4000);
     } catch (err) {
-      setError(err.message || "Something went wrong while saving.");
+      setError(err.response?.data?.message || err.message || "Something went wrong while saving.");
     } finally {
       setSubmitting(false);
     }
@@ -442,17 +414,10 @@ export default function AccountantPaymentsPage() {
     }
  
     try {
-      const res = await fetch(`${API}/payments/${id}`, {
-        method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (res.ok) {
-        setSuccessMsg("Payment status updated successfully!");
-        fetchPayments();
-        setTimeout(() => setSuccessMsg(""), 3000);
-      }
+      await axiosInstance.put(`/payments/${id}`, { status: newStatus });
+      setSuccessMsg("Payment status updated successfully!");
+      fetchPayments();
+      setTimeout(() => setSuccessMsg(""), 3000);
     } catch {
       setError("Failed to update payment status.");
     }
@@ -469,16 +434,11 @@ export default function AccountantPaymentsPage() {
     }
  
     try {
-      const res = await fetch(`${API}/payments/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        setSuccessMsg("Payment log deleted successfully!");
-        fetchPayments();
-        setDeletingId(null);
-        setTimeout(() => setSuccessMsg(""), 3000);
-      }
+      await axiosInstance.delete(`/payments/${id}`);
+      setSuccessMsg("Payment log deleted successfully!");
+      fetchPayments();
+      setDeletingId(null);
+      setTimeout(() => setSuccessMsg(""), 3000);
     } catch {
       setError("Failed to delete payment transaction.");
     }

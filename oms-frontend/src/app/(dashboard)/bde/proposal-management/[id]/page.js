@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ProtectedPage from "@/components/auth/ProtectedPage";
+import axiosInstance from "@/api/axiosInstance";
 import {
   ArrowLeft,
   Loader2,
@@ -30,21 +31,17 @@ export default function BDEProposalDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API = process.env.NEXT_PUBLIC_API_BASE_URL;
-
   const fetchProposal = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API}/proposals/${id}`, { credentials: "include" });
-      if (!res.ok) throw new Error("Proposal not found.");
-      const data = await res.json();
-      setProposal(data.proposal);
+      const res = await axiosInstance.get(`/proposals/${id}`);
+      setProposal(res.data.proposal);
     } catch (err) {
-      setError(err.message || "Failed to load proposal.");
+      setError(err.response?.data?.message || err.message || "Failed to load proposal.");
     } finally {
       setLoading(false);
     }
-  }, [API, id]);
+  }, [id]);
 
   useEffect(() => {
     if (id) fetchProposal();

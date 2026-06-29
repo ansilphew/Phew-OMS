@@ -6,6 +6,7 @@ import { backgroundImages, logos } from "@/data/images";
 import CustomSelect from "@/components/ui/CustomSelect";
 import { registerUser } from "@/lib/api";
 import ProtectedPage from "@/components/auth/ProtectedPage";
+import axiosInstance from "@/api/axiosInstance";
 
 const roleOptions = [
   { value: "CEO", label: "CEO" },
@@ -32,13 +33,9 @@ export default function RegisterPage() {
       async function fetchProjects() {
         try {
           setLoadingProjects(true);
-          const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
-          const res = await fetch(`${apiBase}/projects`, { credentials: "include" });
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.projects) {
-              setProjects(data.projects);
-            }
+          const res = await axiosInstance.get("/projects");
+          if (res.data && res.data.projects) {
+            setProjects(res.data.projects);
           }
         } catch (err) {
           console.error("Failed to fetch projects:", err);

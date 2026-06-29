@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import ProtectedPage from "@/components/auth/ProtectedPage";
 import { getCurrentUser } from "@/lib/api";
+import axiosInstance from "@/api/axiosInstance";
 import {
   Award,
   Briefcase,
@@ -39,11 +40,9 @@ export default function ClientPage() {
         const userData = await getCurrentUser();
         setUser(userData.user);
 
-        const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const res = await fetch(`${apiBase}/dashboard/client-stats`, { credentials: "include" });
-        if (res.ok) {
-          const statsData = await res.json();
-          setData(statsData);
+        const res = await axiosInstance.get("/dashboard/client-stats");
+        if (res.data) {
+          setData(res.data);
         }
       } catch (err) {
         console.error("Error loading client dashboard data:", err);

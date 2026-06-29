@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/api";
+import axiosInstance from "@/api/axiosInstance";
 
 const dashboardMeta = {
   "/ceo": {
@@ -169,15 +170,11 @@ export default function DashboardTopbar() {
 
     async function checkUnread() {
       try {
-        const API = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const res = await fetch(`${API}/notifications`, { credentials: "include" });
-        if (res.ok) {
-          const data = await res.json();
-          const list = data.notifications || [];
-          const unreadExists = list.some((n) => n.unread);
-          if (isMounted) {
-            setHasUnread(unreadExists);
-          }
+        const res = await axiosInstance.get("/notifications");
+        const list = res.data.notifications || [];
+        const unreadExists = list.some((n) => n.unread);
+        if (isMounted) {
+          setHasUnread(unreadExists);
         }
       } catch {
         // silent fail
