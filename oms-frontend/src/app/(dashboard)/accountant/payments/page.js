@@ -326,7 +326,7 @@ export default function AccountantPaymentsPage() {
     setForm({
       project: payment.project || "",
       projectName: payment.projectName,
-      clientName: payment.clientName || "Lumina Tech Corp",
+      clientName: payment.clientName || "",
       serviceType: payment.serviceType,
       totalOfferedAmount: (payment.totalOfferedAmount || 0).toFixed(2),
       amountReceived: previousReceived.toFixed(2),
@@ -763,7 +763,7 @@ export default function AccountantPaymentsPage() {
                                 {pay.projectName}
                               </span>
                               <span className="text-[10.5px] text-slate-400 mt-0.5 block group-hover:text-slate-600 transition">
-                                {pay.clientName || "Lumina Tech Corp"}
+                                {pay.clientName || ""}
                               </span>
                             </td>
                             

@@ -39,33 +39,37 @@ const dashboardMeta = {
     title: "BDE Clients",
     description: "List and manage your registered business clients",
   },
+  "/bde/proposal-management": {
+    title: "BDE Proposals",
+    description: "View and edit draft proposals submitted to prospective clients",
+  },
   "/accountant": {
     title: "Accountant Dashboard",
-    description: "Invoices, collections, and finance summary",
+    description: "Overview of invoice collection records and tax ledger stats",
   },
   "/accountant/invoices": {
-    title: "Invoices",
-    description: "Generate, view, and track client billing invoices",
+    title: "Invoices Ledger",
+    description: "Create, view and manage billing invoice receipts",
   },
   "/accountant/payments": {
-    title: "Payments",
-    description: "Manage received payments and accounts collections history",
+    title: "Payments Collections",
+    description: "Log and audit collection payment checks",
   },
   "/project-manager": {
-    title: "Project Manager Dashboard",
-    description: "Project progress, tasks, and delivery tracking",
+    title: "Project Manager Workspace",
+    description: "Overview of your assigned production schedules, teams and milestones",
   },
   "/project-manager/projects": {
-    title: "PM Projects",
-    description: "Sprint planning, milestone tracking, and deliverables",
+    title: "Milestone Deliverables",
+    description: "Manage project tasks checklist and track execution state",
   },
   "/project-manager/teams": {
-    title: "PM Teams",
-    description: "Coordinate development resources and staff allocation",
+    title: "Production Teams",
+    description: "Track work allocations and resource capacities",
   },
   "/client": {
-    title: "Client Dashboard",
-    description: "Project updates, requests, and client overview",
+    title: "Client Desk",
+    description: "Milestones review, assets deliveries and transaction logs",
   },
   "/profile": {
     title: "My Profile",
@@ -96,6 +100,11 @@ export default function DashboardTopbar() {
   const [profileName, setProfileName] = useState("Profile");
   const [profileRole, setProfileRole] = useState("");
   const [hasUnread, setHasUnread] = useState(false);
+
+  // Search lead states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const checkSessionTitle = () => {
@@ -128,13 +137,13 @@ export default function DashboardTopbar() {
             sessionStorage.setItem("project_active_title", e.detail.title);
             sessionStorage.setItem("project_active_desc", e.detail.description || "");
           }
-        } else {
-          setDynamicTitle("List Of Projects");
-          setDynamicDesc("Track and manage all active and completed projects");
-          if (typeof window !== "undefined") {
-            sessionStorage.removeItem("project_active_title");
-            sessionStorage.removeItem("project_active_desc");
-          }
+        }
+      } else {
+        setDynamicTitle("List Of Projects");
+        setDynamicDesc("Track and manage all active and completed projects");
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("project_active_title");
+          sessionStorage.removeItem("project_active_desc");
         }
       }
     };
@@ -192,6 +201,35 @@ export default function DashboardTopbar() {
     };
   }, []);
 
+  const handleSearchChange = async (e) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+    if (val.trim().length >= 2) {
+      try {
+        const res = await axiosInstance.get(`/leads?search=${encodeURIComponent(val)}`);
+        setSearchResults(res.data.leads || []);
+        setShowDropdown(true);
+      } catch (err) {
+        setSearchResults([]);
+      }
+    } else {
+      setSearchResults([]);
+      setShowDropdown(false);
+    }
+  };
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      setShowDropdown(false);
+    }, 250);
+  };
+
+  const handleSelectLead = (leadId) => {
+    setShowDropdown(false);
+    setSearchQuery("");
+    router.push(`/lead-details/${leadId}`);
+  };
+
   return (
     <header className="fixed left-60 right-0 top-0 z-20 border-b border-card-stroke bg-white shadow-sm">
       <div className="flex min-h-[88px] items-center justify-between px-7 py-3">
@@ -207,26 +245,58 @@ export default function DashboardTopbar() {
 
         <div className="flex items-center gap-6">
           {pathname !== "/client" && (
-            <div className="flex h-11 w-62.5 items-center rounded-xl border border-card-stroke bg-menu-fill px-4">
-              <svg
-                className="h-5 w-5 text-secondary-text"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M21 21L16.65 16.65M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <div className="relative">
+              <div className="flex h-11 w-62.5 items-center rounded-xl border border-card-stroke bg-menu-fill px-4">
+                <svg
+                  className="h-5 w-5 text-secondary-text"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M21 21L16.65 16.65M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
 
-              <input
-                type="text"
-                placeholder="Search leads..."
-                className="ml-3 w-full bg-transparent text-[14px] text-primary-text outline-none placeholder:text-search-text"
-              />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onBlur={handleBlur}
+                  placeholder="Search leads..."
+                  className="ml-3 w-full bg-transparent text-[14px] text-primary-text outline-none placeholder:text-search-text"
+                />
+              </div>
+
+              {/* Search Dropdown Overlay */}
+              {showDropdown && searchResults.length > 0 && (
+                <div className="absolute left-0 right-0 mt-2 max-h-60 overflow-y-auto rounded-xl border border-card-stroke bg-white py-2 shadow-lg z-30">
+                  {searchResults.map((lead) => (
+                    <button
+                      key={lead._id}
+                      onClick={() => handleSelectLead(lead._id)}
+                      className="w-full px-4 py-2.5 text-left hover:bg-slate-50 transition duration-150 flex flex-col gap-0.5 border-b last:border-b-0 border-slate-100"
+                    >
+                      <span className="text-[13px] font-semibold text-slate-700 block truncate">
+                        {lead.projectName}
+                      </span>
+                      <span className="text-[11px] text-slate-400 block truncate">
+                        {lead.organization || "No Organization"} • {lead.status}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Empty/No Results Message */}
+              {showDropdown && searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+                <div className="absolute left-0 right-0 mt-2 rounded-xl border border-card-stroke bg-white px-4 py-3 text-center text-[12px] text-slate-400 shadow-lg z-30">
+                  No matching leads found
+                </div>
+              )}
             </div>
           )}
 
@@ -238,10 +308,11 @@ export default function DashboardTopbar() {
                 router.push("/notifications");
               }
             }}
-            className={`relative flex cursor-pointer items-center justify-center transition-colors duration-200 ${pathname === "/ceo/notifications" || pathname === "/notifications"
+            className={`relative flex cursor-pointer items-center justify-center transition-colors duration-200 ${
+              pathname === "/ceo/notifications" || pathname === "/notifications"
                 ? "text-primary-button"
                 : "text-secondary-text hover:text-primary-text"
-              }`}
+            }`}
             aria-label="View notifications"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
